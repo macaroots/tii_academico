@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <%- include('/home/node/app/views/cabecalho.ejs') %>
+    <h1>Média!</h1>
+
+    <p>Olá, <%= nome %>. Você tirou <%= nota1 %> e <%= nota2 %>. Tem média <%= media() %>.
+<%
+if (estaAprovado()) {
+%>
+    <p>Aprovado</p>
+<%
+}
+else {
+%>
+    <p>Reprovado</p>
+<%
+}
+%>
+</body>
+</html>
