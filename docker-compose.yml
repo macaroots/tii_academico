@@ -3,6 +3,7 @@ version: '3'
 services:
   node:
     build: .
+    env_file: .env
     ports:
       - "82:3000"
     volumes:

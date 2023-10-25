@@ -26,7 +26,12 @@ class EstudantesController {
             estudante.nota1 = parseFloat(query.nota1);
             estudante.nota2 = parseFloat(query['nota2']);
 
-            utils.renderizarEjs(res, './views/media.ejs', estudante);
+            if (req.headers.accept == 'application/json') {
+                utils.renderizarJSON(res, estudante);
+            }
+            else {
+                utils.renderizarEjs(res, './views/media.ejs', estudante);
+            }
         });
     }
 
@@ -109,7 +114,9 @@ class EstudantesController {
         let estudante = new Estudante(
             corpo.nome,
             parseFloat(corpo.nota1),
-            parseFloat(corpo.nota2)
+            parseFloat(corpo.nota2),
+            corpo.senha,
+            corpo.papel
         );
         return estudante;
     }

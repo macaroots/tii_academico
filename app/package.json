@@ -12,7 +12,9 @@
   "author": "Renato Lenz Costalima",
   "license": "Apache-2.0",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "ejs": "^3.1.9",
+    "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.0.1"
   }
 }
