@@ -13,7 +13,7 @@ class AuthController {
 
     async logar(req, res) {
         let corpo = await utils.getCorpo(req);
-        let usuario = this.estudantesDao.autenticar(corpo.nome, corpo.senha);
+        let usuario = await this.estudantesDao.autenticar(corpo.nome, corpo.senha);
         if (usuario) {
             console.log({usuario});
             let token = jwt.sign({

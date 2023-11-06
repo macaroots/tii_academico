@@ -3,9 +3,19 @@ const EstudantesController = require('./controllers/EstudantesController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const AuthController = require('./controllers/AuthController');
+const EstudantesMysqlDao = require('./lib/academico/EstudantesMysqlDao');
 const EstudantesDao = require('./lib/academico/EstudantesDao');
+const mysql = require('mysql');
 
-let estudantesDao = new EstudantesDao();
+const pool  = mysql.createPool({
+    connectionLimit : 10,
+    host            : 'bd',
+    user            : process.env.MARIADB_USER,
+    password        : process.env.MARIADB_PASSWORD,
+    database        : process.env.MARIADB_DATABASE
+});
+
+let estudantesDao = new EstudantesMysqlDao(pool);
 let estudantesController = new EstudantesController(estudantesDao);
 let estaticoController = new EstaticoController();
 let autorController = new AutorController();

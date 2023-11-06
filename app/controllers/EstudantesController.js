@@ -35,8 +35,8 @@ class EstudantesController {
         });
     }
 
-    listar(req, res) {
-        let estudantes = this.estudantesDao.listar();
+    async listar(req, res) {
+        let estudantes = await this.estudantesDao.listar();
         /**/
         // Alternativa com map()
         let dados = estudantes.map(estudante => {
@@ -63,7 +63,7 @@ class EstudantesController {
     async inserir(req, res) {
         let estudante = await this.getEstudanteDaRequisicao(req);
         try {
-            this.estudantesDao.inserir(estudante);
+            estudante.id = await this.estudantesDao.inserir(estudante);
             utils.renderizarJSON(res, {
                 estudante: {
                     ...estudante,
