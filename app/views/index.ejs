@@ -2,11 +2,21 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script src="/_js/media.js"></script>
+    <style>
+        .aprovado {
+            color: green;
+        }
+        .reprovado {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <%- include('/home/node/app/views/cabecalho.ejs') %>
+    <img src="_img/logo.png">
     <h1>Index!</h1>
-    <form action="media" method="post">
+    <form method="post" onSubmit="event.preventDefault(); calcularMedia();">
         <label>
             <span>Nome</span>
             <input name="nome">
@@ -21,5 +31,6 @@
         </label>
         <button>Ok</button>
     </form>
+    <div id="resposta"></div>
 </body>
 </html>
