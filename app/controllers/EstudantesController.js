@@ -116,7 +116,7 @@ class EstudantesController {
             parseFloat(corpo.nota1),
             parseFloat(corpo.nota2),
             corpo.senha,
-            corpo.papel
+            corpo.id_papel
         );
         return estudante;
     }

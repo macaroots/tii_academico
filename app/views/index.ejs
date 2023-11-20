@@ -17,6 +17,7 @@
     <img src="_img/logo.png">
     <h1>Index!</h1>
     <form method="post" onSubmit="event.preventDefault(); calcularMedia();">
+        <div id="resposta"></div>
         <label>
             <span>Nome</span>
             <input name="nome">
@@ -29,8 +30,37 @@
             <span>Nota2</span>
             <input name="nota2">
         </label>
+        <label>
+            <span>Senha</span>
+            <input name="senha" type="password">
+        </label>
+        <label>
+            <span>ID papel</span>
+            <input name="id_papel" type="number">
+        </label>
         <button>Ok</button>
     </form>
-    <div id="resposta"></div>
+    <button onclick="listar();">Listar</button>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Nota1</th>
+            <th>Nota2</th>
+            <th></th>
+        </tr>
+        <tbody id="estudantes">
+            <tr>
+                <td>1</td>
+                <td>Ada</td>
+                <td>4</td>
+                <td>7</td>
+                <td>
+                    <button onclick="editar(1);">Editar</button>
+                    <button onclick="apagar(1);">Apagar</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>

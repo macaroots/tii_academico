@@ -34,8 +34,8 @@ class AuthController {
     // middleware
     autorizar(req, res, proximoControlador, papeisPermitidos) {
         console.log('autorizando', req.headers);
-        let token = req.headers.authorization.split(' ')[1];
         try {
+            let token = req.headers.authorization.split(' ')[1];
             let usuario = jwt.verify(token, this.SEGREDO_JWT);
             req.usuario = usuario;
             console.log({usuario}, papeisPermitidos);
@@ -51,7 +51,8 @@ class AuthController {
 
         } catch (e) {
             utils.renderizarJSON(res, {
-                mensagem: 'Não autenticado!'
+                mensagem: 'Não autenticado!',
+                error: e.message
             }, 401);
         }
 
