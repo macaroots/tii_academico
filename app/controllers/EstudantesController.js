@@ -1,10 +1,28 @@
 const utils = require('./../lib/utils');
 const Estudante = require('./../lib/academico/Estudante');
+const express = require('express');
 
 class EstudantesController {
     constructor(estudantesDao) {
         this.estudantesDao = estudantesDao;
     }
+
+    getRouter() {
+        const rotas = express.Router();
+        rotas.get([
+            '/',
+            '/index'
+            ], (req, res) => {
+                console.log('custom', req.dadosPersonalizados); // { chave: 'valor' }
+            this.index(req, res)
+        });
+
+        rotas.get('/:id', (req, res) => {
+            this.alterar(req, res);
+        })
+        return rotas;
+    }
+
     index(req, res) {
         utils.renderizarEjs(res, './views/index.ejs');
     }
@@ -81,10 +99,7 @@ class EstudantesController {
 
     async alterar(req, res) {
         let estudante = await this.getEstudanteDaRequisicao(req);
-        let [ url, queryString ] = req.url.split('?');
-        let urlList = url.split('/');
-        url = urlList[1];
-        let id = urlList[2];
+        let id = req.params.id;
         try {
             this.estudantesDao.alterar(id, estudante);
             utils.renderizarJSON(res, {

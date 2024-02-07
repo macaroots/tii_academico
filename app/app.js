@@ -1,4 +1,7 @@
-const http = require('http');
+const express = require('express')
+const app = express()
+const port = 3000
+
 const EstudantesController = require('./controllers/EstudantesController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
@@ -21,51 +24,35 @@ let estaticoController = new EstaticoController();
 let autorController = new AutorController();
 let authController = new AuthController(estudantesDao);
 
-const PORT = 3000;
-// Controlador Frontal - Front Controller
-const server = http.createServer(function (req, res) {
-    let [ url, queryString ] = req.url.split('?');
-    let urlList = url.split('/');
-    url = urlList[1];
-    let metodo = req.method;
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-    if (url == 'index') {
-        estudantesController.index(req, res);
-    }
-    else if (url == 'media') {
-        estudantesController.media(req, res);
-    }
-    else if (url == 'estudantes' && metodo == 'GET') {
-        estudantesController.listar(req, res);
-    }
-    else if (url == 'estudantes' && metodo == 'POST') {
-        estudantesController.inserir(req, res);
-    }
-    else if (url == 'estudantes' && metodo == 'PUT') {
-        authController.autorizar(req, res, function() {
-            estudantesController.alterar(req, res);
-        }, ['admin', 'geral']);
-        
-    }
-    else if (url == 'estudantes' && metodo == 'DELETE') {
-        authController.autorizar(req, res, function() {
-            estudantesController.apagar(req, res);
-        }, ['admin']);
-    }
-    else if (url == 'autor') {
-        autorController.index(req, res);
-    }
-    else if (url == 'login') {
-        authController.index(req, res);
-    }
-    else if (url == 'logar') {
-        authController.logar(req, res);
-    }
-    else {
-        estaticoController.procurar(req, res);
-    }
+
+app.use((req, res, next) => {
+    res.locals.dadosPersonalizados = { chave: 'valor' };
+    console.log('middleware 0')
+    next();
+});
+app.use('/estudantes', estudantesController.getRouter());
+
+app.use((req, res, next) => {
+    res.locals.dadosPersonalizados = { chave: 'valor' };
+    console.log('middleware 1')
+    next();
+});
+app.get('/', (req, res) => {
+    console.log('custom', res.locals.dadosPersonalizados); // { chave: 'valor' }
+
+    res.send('Página inicial');
+});
+  
+app.use((req, res, next) => {
+    res.locals.dadosPersonalizados = { chave: 'valor' };
+    console.log('middleware 2')
+    next();
 });
 
-server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-});
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
