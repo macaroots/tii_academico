@@ -9,22 +9,25 @@ class EstudantesController {
 
     getRouter() {
         const rotas = express.Router();
-        rotas.get([
-            '/',
-            '/index'
-            ], (req, res) => {
-                console.log('custom', req.dadosPersonalizados); // { chave: 'valor' }
-            this.index(req, res)
+        rotas.get('/', (req, res) => {
+            this.listar(req, res)
         });
 
-        rotas.get('/:id', (req, res) => {
+        rotas.put('/:id', (req, res) => {
             this.alterar(req, res);
+        })
+        rotas.delete('/:id', (req, res) => {
+            this.apagar(req, res);
+        })
+
+        rotas.post('/', (req, res) => {
+            this.inserir(req, res);
         })
         return rotas;
     }
 
     index(req, res) {
-        utils.renderizarEjs(res, './views/index.ejs');
+        res.render('index');
     }
     
     media(req, res) {
@@ -59,7 +62,7 @@ class EstudantesController {
         // Alternativa com map()
         let dados = estudantes.map(estudante => {
             return {
-                ...estudante,
+                ...estudante.dataValues,
                 media: estudante.media(),
                 estaAprovado: estudante.estaAprovado()
             };
@@ -75,14 +78,16 @@ class EstudantesController {
             });
         }
         /**/
-        utils.renderizarJSON(res, dados);
+        res.json(dados);
     }
     
     async inserir(req, res) {
-        let estudante = await this.getEstudanteDaRequisicao(req);
+        console.log("inserir0")
         try {
+            let estudante = await this.getEstudanteDaRequisicao(req);
+            console.log("inserir", estudante)
             estudante.id = await this.estudantesDao.inserir(estudante);
-            utils.renderizarJSON(res, {
+            res.json({
                 estudante: {
                     ...estudante,
                     media: estudante.media(),
@@ -91,10 +96,12 @@ class EstudantesController {
                 mensagem: 'mensagem_estudante_cadastrado'
             });
         } catch (e) {
-            utils.renderizarJSON(res, {
+            console.log("erro inserir", e)
+            res.status(400).json({
                 mensagem: e.message
-            }, 400);
+            });
         }
+        console.log("inserir2")
     }
 
     async alterar(req, res) {
@@ -113,26 +120,23 @@ class EstudantesController {
     }
     
     apagar(req, res) {
-        let [ url, queryString ] = req.url.split('?');
-        let urlList = url.split('/');
-        url = urlList[1];
-        let id = urlList[2];
+        let id = req.params.id;
         this.estudantesDao.apagar(id);
-        utils.renderizarJSON(res, {
+        res.json({
             mensagem: 'mensagem_estudante_apagado',
             id: id
         });
     }
 
     async getEstudanteDaRequisicao(req) {
-        let corpo = await utils.getCorpo(req);
-        let estudante = new Estudante(
-            corpo.nome,
-            parseFloat(corpo.nota1),
-            parseFloat(corpo.nota2),
-            corpo.senha,
-            corpo.id_papel
-        );
+        let corpo = req.body;
+        let estudante = Estudante.build({
+            nome: corpo.nome,
+            nota1: parseFloat(corpo.nota1),
+            nota2: parseFloat(corpo.nota2),
+            senha: corpo.senha,
+            papel: corpo.id_papel
+        });
         return estudante;
     }
 

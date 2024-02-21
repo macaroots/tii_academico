@@ -6,19 +6,23 @@ const EstudantesController = require('./controllers/EstudantesController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const AuthController = require('./controllers/AuthController');
-const EstudantesMysqlDao = require('./lib/academico/EstudantesMysqlDao');
+const EstudantesSequelizeDao = require('./lib/academico/EstudantesSequelizeDao');
 const EstudantesDao = require('./lib/academico/EstudantesDao');
-const mysql = require('mysql');
+const Sequelize = require("sequelize");
 
-const pool  = mysql.createPool({
-    connectionLimit : 10,
-    host            : 'bd',
-    user            : process.env.MARIADB_USER,
-    password        : process.env.MARIADB_PASSWORD,
-    database        : process.env.MARIADB_DATABASE
-});
+const sequelize = new Sequelize(
+    process.env.MARIADB_DATABASE,
+    'root',
+    process.env.MARIADB_PASSWORD,
+    {
+        host: 'bd',
+        dialect: 'mysql'
+    }
+);
 
-let estudantesDao = new EstudantesMysqlDao(pool);
+app.set('view engine', 'ejs');
+
+let estudantesDao = new EstudantesSequelizeDao(sequelize);
 let estudantesController = new EstudantesController(estudantesDao);
 let estaticoController = new EstaticoController();
 let autorController = new AutorController();
@@ -26,8 +30,7 @@ let authController = new AuthController(estudantesDao);
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
+//app.use(express.json());
 
 app.use((req, res, next) => {
     res.locals.dadosPersonalizados = { chave: 'valor' };
@@ -41,16 +44,30 @@ app.use((req, res, next) => {
     console.log('middleware 1')
     next();
 });
-app.get('/', (req, res) => {
-    console.log('custom', res.locals.dadosPersonalizados); // { chave: 'valor' }
-
-    res.send('Página inicial');
+app.get([
+    '/',
+    '/index'
+    ], (req, res) => {
+        console.log('custom', req.dadosPersonalizados); // { chave: 'valor' }
+        estudantesController.index(req, res)
 });
   
 app.use((req, res, next) => {
     res.locals.dadosPersonalizados = { chave: 'valor' };
     console.log('middleware 2')
     next();
+});
+
+app.get('/autor', (req, res) => {
+    autorController.index(req, res);
+});
+app.use((err, req, res, next) => {
+//   if (err.name === 'UnauthorizedError') {
+    console.log('erro', err);
+    res.status(401).send('Não autorizado');
+//   } else {
+//     next(err);
+//   }
 });
 
 app.listen(port, () => {

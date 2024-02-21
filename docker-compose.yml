@@ -14,7 +14,7 @@ services:
     image: mariadb:latest
     env_file: .env
     volumes:
-      - ./mariadb/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      #- ./mariadb/setup.sql:/docker-entrypoint-initdb.d/setup.sql
       - dados_mariadb:/var/lib/mysql
 
 volumes:

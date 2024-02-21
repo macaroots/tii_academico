@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <%- include('/home/node/app/views/cabecalho.ejs') %>
+    <%- include('cabecalho') %>
     <h1><%= nome %></h1>
     <section>
         <h1>Formações</h1>
         <ul>
 <%
 for (let formacao of formacoes) {
-%>
+_%>
             <li><%= formacao %></li>
 <%
 }
-%>
+-%>
         </ul>
     </section>
 </body>
