@@ -63,10 +63,13 @@ class EstudantesSequelizeDao {
         }
     }
 
-    autenticar(nome, senha) {
-        return new Promise((resolve, reject) => {
-            
-        });
+    async autenticar(nome, senha) {
+        let estudante = await this.Estudante.findOne({where: {nome}});
+        console.log(estudante.senha)
+        /*if (bcrypt.compareSync(senha, estudante.senha)) {
+            return estudante;
+        }*/
+        return estudante;
     }
 }
 

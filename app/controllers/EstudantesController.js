@@ -20,8 +20,8 @@ class EstudantesController {
             this.apagar(req, res);
         })
 
-        rotas.post('/', (req, res) => {
-            this.inserir(req, res);
+        rotas.post('/', (req, res, next) => {
+            this.inserir(req, res, next);
         })
         return rotas;
     }
@@ -81,7 +81,7 @@ class EstudantesController {
         res.json(dados);
     }
     
-    async inserir(req, res) {
+    async inserir(req, res, next) {
         console.log("inserir0")
         try {
             let estudante = await this.getEstudanteDaRequisicao(req);
@@ -97,9 +97,10 @@ class EstudantesController {
             });
         } catch (e) {
             console.log("erro inserir", e)
-            res.status(400).json({
+            /*res.status(400).json({
                 mensagem: e.message
-            });
+            });*/
+            next(e);
         }
         console.log("inserir2")
     }

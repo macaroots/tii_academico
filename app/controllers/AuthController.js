@@ -12,20 +12,19 @@ class AuthController {
     }
 
     async logar(req, res) {
-        let corpo = await utils.getCorpo(req);
-        let usuario = await this.estudantesDao.autenticar(corpo.nome, corpo.senha);
+        let usuario = await this.estudantesDao.autenticar(req.body.nome, req.body.senha);
         if (usuario) {
             console.log({usuario});
             let token = jwt.sign({
-                ...usuario
+                ...usuario.toJSON()
             }, this.SEGREDO_JWT);
-            utils.renderizarJSON(res, {
+            res.json({
                 token,
                 mensagem: 'Usuário logado com sucesso!'
             });
         }
         else {
-            utils.renderizarJSON(res, {
+            res.json({
                 mensagem: 'Usuário ou senha inválidos!'
             }, 401);
         }
