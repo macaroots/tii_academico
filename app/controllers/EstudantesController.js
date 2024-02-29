@@ -62,9 +62,9 @@ class EstudantesController {
         // Alternativa com map()
         let dados = estudantes.map(estudante => {
             return {
-                ...estudante.dataValues,
-                media: estudante.media(),
-                estaAprovado: estudante.estaAprovado()
+                ...estudante,
+                // media: estudante.media(),
+                // estaAprovado: estudante.estaAprovado()
             };
         })
         /*/

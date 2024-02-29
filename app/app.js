@@ -6,12 +6,16 @@ const EstudantesController = require('./controllers/EstudantesController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const AuthController = require('./controllers/AuthController');
-const EstudantesSequelizeDao = require('./lib/academico/EstudantesSequelizeDao');
+const EstudantesMongoDao = require('./lib/academico/EstudantesMongoDao');
 const EstudantesDao = require('./lib/academico/EstudantesDao');
 const Sequelize = require("sequelize");
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
+const { MongoClient } = require("mongodb");
+
+const uri = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@mongo`;
+const mongoClient = new MongoClient(uri);
 
 let opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -21,19 +25,9 @@ passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
     return done(null, jwt_payload);
 }));
 
-const sequelize = new Sequelize(
-    process.env.MARIADB_DATABASE,
-    'root',
-    process.env.MARIADB_PASSWORD,
-    {
-        host: 'bd',
-        dialect: 'mysql'
-    }
-);
-
 app.set('view engine', 'ejs');
 
-let estudantesDao = new EstudantesSequelizeDao(sequelize);
+let estudantesDao = new EstudantesMongoDao(mongoClient);
 let estudantesController = new EstudantesController(estudantesDao);
 let estaticoController = new EstaticoController();
 let autorController = new AutorController();
@@ -83,6 +77,11 @@ app.get('/login', (req, res) => {
 
 app.post('/logar', (req, res) => {
     authController.logar(req, res);
+});
+
+app.get('/lista', async (req, res) => {
+    let estudantes = await estudantesDao.listar();
+    res.render('lista', {estudantes});
 });
 
 app.get('*', (req, res, next) => {
