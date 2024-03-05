@@ -11,16 +11,17 @@
             color: red;
         }
     </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
-<body>
+<body id="app">
     <%- include('cabecalho') %>
     <img src="_img/logo.png">
-    <h1>Index!</h1>
-    <form method="post" onSubmit="event.preventDefault(); calcularMedia();">
+    <h1>Index! {{message}}</h1>
+    <form method="post" @submit.prevent="inserir">
         <div id="resposta"></div>
         <label>
             <span>Nome</span>
-            <input name="nome">
+            <input name="nome" v-model="nome">
         </label>
         <label>
             <span>Nota1</span>
@@ -50,9 +51,9 @@
             <th></th>
         </tr>
         <tbody id="estudantes">
-            <tr>
+            <tr v-for="nome of nomes">
                 <td>1</td>
-                <td>Ada</td>
+                <td>{{nome}}</td>
                 <td>4</td>
                 <td>7</td>
                 <td>
@@ -64,3 +65,24 @@
     </table>
 </body>
 </html>
+<script type="module">
+    
+    Vue.createApp({
+      setup() {
+        // A "ref" é uma fonte de dado reativa que guarda um valor.
+        // Tecnicamente, não precisamos envolver uma sequência de caracteres
+        // com ref() para exibe-la, mas veremos no próximo exemplo do porquê
+        // ser preciso caso alguma vez tencionamos mudar o valor.
+        const nome = Vue.ref('')
+        const nomes = Vue.ref([])
+        function inserir() {
+            nomes.value.push(nome.value);
+        }
+        return {
+            nome,
+            nomes,
+            inserir
+        }
+      }
+    }).mount('#app')
+</script>
