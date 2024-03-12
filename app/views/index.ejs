@@ -16,73 +16,28 @@
 <body id="app">
     <%- include('cabecalho') %>
     <img src="_img/logo.png">
-    <h1>Index! {{message}}</h1>
-    <form method="post" @submit.prevent="inserir">
-        <div id="resposta"></div>
-        <label>
-            <span>Nome</span>
-            <input name="nome" v-model="nome">
-        </label>
-        <label>
-            <span>Nota1</span>
-            <input name="nota1">
-        </label>
-        <label>
-            <span>Nota2</span>
-            <input name="nota2">
-        </label>
-        <label>
-            <span>Senha</span>
-            <input name="senha" type="password">
-        </label>
-        <label>
-            <span>ID papel</span>
-            <input name="id_papel" type="number">
-        </label>
-        <button>Ok</button>
-    </form>
-    <button onclick="listar();">Listar</button>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Nota1</th>
-            <th>Nota2</th>
-            <th></th>
-        </tr>
-        <tbody id="estudantes">
-            <tr v-for="nome of nomes">
-                <td>1</td>
-                <td>{{nome}}</td>
-                <td>4</td>
-                <td>7</td>
-                <td>
-                    <button onclick="editar(1);">Editar</button>
-                    <button onclick="apagar(1);">Apagar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <h1>Index!</h1>
+    <crud-estudantes :nomes="lista" @selecionado="seleciona"></crud-estudantes>
+    <crud-estudantes :nomes="lista" :nome2="nome"></crud-estudantes>
 </body>
 </html>
 <script type="module">
-    
+    import CrudEstudantes from './_js/CrudEstudantes.js'
     Vue.createApp({
-      setup() {
-        // A "ref" é uma fonte de dado reativa que guarda um valor.
-        // Tecnicamente, não precisamos envolver uma sequência de caracteres
-        // com ref() para exibe-la, mas veremos no próximo exemplo do porquê
-        // ser preciso caso alguma vez tencionamos mudar o valor.
-        const nome = Vue.ref('')
-        const nomes = Vue.ref([])
-        function inserir() {
-            nomes.value.push(nome.value);
+        components: {
+            CrudEstudantes
+        },
+        setup() {
+            const lista = Vue.ref([]);
+            const nome = Vue.ref(null);
+            function seleciona(evento) {
+                nome.value = evento;
+            }
+            return {
+                lista,
+                nome,
+                seleciona
+            }
         }
-        return {
-            nome,
-            nomes,
-            inserir
-        }
-      }
     }).mount('#app')
 </script>
