@@ -1,13 +1,13 @@
 export default {
     props: {
-        nomes: Array,
+        estudantes: Array,
         nome2: String
     },
     setup(props, {emit}) {
         const nome = Vue.ref(props.nome2)
-        const nomes = Vue.ref(props.nomes)
+        const estudantes = Vue.ref(props.estudantes || [])
         function inserir() {
-            nomes.value.push(nome.value);
+            estudantes.value.push({id: estudantes.value.length + 1, nome: nome.value});
         }
         function selecionar(nome) {
             emit('selecionado', nome);
@@ -17,7 +17,7 @@ export default {
         });*/
         return {
             nome,
-            nomes,
+            estudantes,
             inserir,
             selecionar
         }
@@ -47,7 +47,6 @@ export default {
         </label>
         <button>Ok</button>
     </form>
-    <button onclick="listar();">Listar</button>
     <table>
         <tr>
             <th>ID</th>
@@ -57,15 +56,15 @@ export default {
             <th></th>
         </tr>
         <tbody id="estudantes">
-            <tr v-for="nome of nomes">
-                <td>1</td>
-                <td>{{nome}}</td>
+            <tr v-for="estudante of estudantes">
+                <td>{{estudante.id}}</td>
+                <td>{{estudante.nome}}</td>
                 <td>4</td>
                 <td>7</td>
                 <td>
                     <button onclick="editar(1);">Editar</button>
                     <button onclick="apagar(1);">Apagar</button>
-                    <button @click="selecionar(nome);">Selecionar</button>
+                    <button @click="selecionar(estudante);">Selecionar</button>
                 </td>
             </tr>
         </tbody>

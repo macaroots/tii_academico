@@ -12,21 +12,48 @@
         }
     </style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4.0.15/dist/vue-router.global.js"></script>
 </head>
 <body id="app">
     <%- include('cabecalho') %>
     <img src="_img/logo.png">
     <h1>Index!</h1>
-    <crud-estudantes :nomes="lista" @selecionado="seleciona"></crud-estudantes>
-    <crud-estudantes :nomes="lista" :nome2="nome"></crud-estudantes>
+    <nav>
+        <router-link to="/">Início</router-link>
+        <router-link to="/admin/estudantes">Admin estudantes</router-link>
+        <router-link to="/autor">Autor</router-link>
+    </nav>
+    <main>
+        <router-view />
+    </main>
 </body>
 </html>
 <script type="module">
     import CrudEstudantes from './_js/CrudEstudantes.js'
+    import ListEstudantes from './_js/ListEstudantes.js'
+    import Autor from './_js/Autor.js'
+    import Detalhes from './_js/Detalhes.js'
+
+    let estudantes = Vue.ref([{nome: 'Ana', id: 1}]);
+    const routes = [
+        { path: '/', component: ListEstudantes, props: {
+            estudantes
+        } },
+        { path: '/admin/estudantes', component: CrudEstudantes, props: {
+            estudantes
+        } },
+        { path: '/autor', component: Autor },
+        { path: '/detalhes/:id', component: Detalhes, props: {
+            estudantes
+        } }
+    ]
+
+    const router = VueRouter.createRouter({
+        history: VueRouter.createMemoryHistory(),
+        routes,
+    });
+
     Vue.createApp({
-        components: {
-            CrudEstudantes
-        },
         setup() {
             const lista = Vue.ref([]);
             const nome = Vue.ref(null);
@@ -39,5 +66,5 @@
                 seleciona
             }
         }
-    }).mount('#app')
+    }).use(router).mount('#app')
 </script>
