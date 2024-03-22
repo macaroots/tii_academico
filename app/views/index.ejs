@@ -33,8 +33,8 @@
     import ListEstudantes from './_js/ListEstudantes.js'
     import Autor from './_js/Autor.js'
     import Detalhes from './_js/Detalhes.js'
-
-    let estudantes = Vue.ref([{nome: 'Ana', id: 1}]);
+    
+    let estudantes = Vue.ref(await listar());
     const routes = [
         { path: '/', component: ListEstudantes, props: {
             estudantes
@@ -47,12 +47,12 @@
             estudantes
         } }
     ]
-
+    
     const router = VueRouter.createRouter({
         history: VueRouter.createMemoryHistory(),
         routes,
     });
-
+    
     Vue.createApp({
         setup() {
             const lista = Vue.ref([]);
@@ -68,3 +68,4 @@
         }
     }).use(router).mount('#app')
 </script>
+<script src="/_js/EstudantesStore.js"></script>

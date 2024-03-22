@@ -7,10 +7,19 @@ export default {
         const nome = Vue.ref(props.nome2)
         const estudantes = Vue.ref(props.estudantes || [])
         function inserir() {
-            estudantes.value.push({id: estudantes.value.length + 1, nome: nome.value});
+            //estudantes.value.push({id: estudantes.value.length + 1, nome: nome.value});
+            (async () => {
+                let id = await adicionar({nome: nome.value, nota1: 2, nota2: 8})
+                alert('Registro #' + id + ' adicionado!')
+            })()
         }
         function selecionar(nome) {
             emit('selecionado', nome);
+        }
+        async function apagar(id) {
+            if (confirm('Quer apagar o #' + id + '?')) {
+                console.log('apagado', await deletar(id));
+            }
         }
         /*Vue.watch(props.nome, function (novo) {
             nome.value = novo;
@@ -19,7 +28,8 @@ export default {
             nome,
             estudantes,
             inserir,
-            selecionar
+            selecionar,
+            apagar,
         }
     },
     template: `
@@ -62,8 +72,8 @@ export default {
                 <td>4</td>
                 <td>7</td>
                 <td>
-                    <button onclick="editar(1);">Editar</button>
-                    <button onclick="apagar(1);">Apagar</button>
+                    <button onclick="editar({{estudante.id}});">Editar</button>
+                    <button @click="apagar(estudante.id);">Apagar</button>
                     <button @click="selecionar(estudante);">Selecionar</button>
                 </td>
             </tr>
