@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <script src="/_js/media.js"></script>
@@ -7,6 +8,7 @@
         .aprovado {
             color: green;
         }
+
         .reprovado {
             color: red;
         }
@@ -14,45 +16,53 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/vue-router@4.0.15/dist/vue-router.global.js"></script>
 </head>
+
 <body id="app">
     <%- include('cabecalho') %>
-    <img src="_img/logo.png">
-    <h1>Index!</h1>
-    <nav>
-        <router-link to="/">Início</router-link>
-        <router-link to="/admin/estudantes">Admin estudantes</router-link>
-        <router-link to="/autor">Autor</router-link>
-    </nav>
-    <main>
-        <router-view />
-    </main>
+        <img src="_img/logo.png">
+        <h1>Index!</h1>
+        <nav>
+            <router-link to="/">Início</router-link>
+            <router-link to="/admin/estudantes">Admin estudantes</router-link>
+            <router-link to="/autor">Autor</router-link>
+        </nav>
+        <main>
+            <router-view />
+        </main>
 </body>
+
 </html>
 <script type="module">
     import CrudEstudantes from './_js/CrudEstudantes.js'
     import ListEstudantes from './_js/ListEstudantes.js'
     import Autor from './_js/Autor.js'
     import Detalhes from './_js/Detalhes.js'
-    
+
     let estudantes = Vue.ref(await listar());
     const routes = [
-        { path: '/', component: ListEstudantes, props: {
-            estudantes
-        } },
-        { path: '/admin/estudantes', component: CrudEstudantes, props: {
-            estudantes
-        } },
+        {
+            path: '/', component: ListEstudantes, props: {
+                estudantes
+            }
+        },
+        {
+            path: '/admin/estudantes', component: CrudEstudantes, props: {
+                estudantes
+            }
+        },
         { path: '/autor', component: Autor },
-        { path: '/detalhes/:id', component: Detalhes, props: {
-            estudantes
-        } }
+        {
+            path: '/detalhes/:id', component: Detalhes, props: {
+                estudantes
+            }
+        }
     ]
-    
+
     const router = VueRouter.createRouter({
         history: VueRouter.createMemoryHistory(),
         routes,
     });
-    
+
     Vue.createApp({
         setup() {
             const lista = Vue.ref([]);
@@ -69,3 +79,30 @@
     }).use(router).mount('#app')
 </script>
 <script src="/_js/EstudantesStoreAPI.js"></script>
+<script>
+
+    if ('serviceWorker' in navigator) {
+
+        window.addEventListener('load', () => {
+            Notification.requestPermission();
+            navigator.serviceWorker.register('/worker.js', { scope: '/'})
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                    // const worker = new Worker('_js/worker.js');
+                    console.log({ registration });
+                    // Envia dados para o Worker
+                    // registration.postMessage('oi da página');
+                
+                    // Escuta a resposta do Worker
+                    registration.addEventListener('message', event => {
+                        console.log('recebeu ', event.data);
+                    });
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+
+
+</script>

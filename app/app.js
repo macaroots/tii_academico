@@ -15,6 +15,7 @@ const JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
 const { MongoClient } = require("mongodb");
 // const mysql = require('mysql2');
+const webpush = require('web-push');
 
 const uri = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@mongo`;
 const mongoClient = new MongoClient(uri);
@@ -30,7 +31,7 @@ const mongoClient = new MongoClient(uri);
 let opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.SEGREDO_JWT;
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
     console.log('verificação jwt', jwt_payload);
     return done(null, jwt_payload);
 }));
@@ -46,23 +47,55 @@ let authController = new AuthController(estudantesDao);
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
-//app.use(express.json());
+app.use(express.json());
+
+// Defina as chaves VAPID - você pode gerar essas chaves usando o web-push
+webpush.setVapidDetails(
+    'mailto:seuemail@example.com',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+);
+
+let subscriptions = [];
+// Rota para salvar as subscrições
+app.post('/subscribe', (req, res) => {
+    subscription = req.body;
+    subscriptions.push(subscription);
+    console.log({ subscriptions });
+    res.status(201).json({});
+});
+
+app.get('/push', (req, res) => {
+    res.render('push');
+})
+
+// Rota para enviar notificações
+app.get('/notificar', (req, res) => {
+    const payload = JSON.stringify({ title: req.query.msg });
+    console.log('notificando', subscriptions);
+    for (let subscription of subscriptions) {
+        webpush.sendNotification(subscription, payload)
+            .catch(error => console.error('Erro ao notificar:', error));
+        console.log('notificando', subscription);
+    }
+    res.send('ok');
+});
 
 app.use('/estudantes', estudantesController.getRouter());
 
 app.get([
     '/',
     '/index'
-    ], (req, res) => {
-        estudantesController.index(req, res)
+], (req, res) => {
+    estudantesController.index(req, res)
 });
-  
+
 app.get('/autor', (req, res) => {
     autorController.index(req, res);
 });
 
 app.get('/perfil', passport.authenticate('jwt', { session: false, failureRedirect: '/login' }), (req, res) => {
-    res.json({'usuario': req.user});
+    res.json({ 'usuario': req.user });
 });
 
 app.get('/login', (req, res) => {
@@ -79,7 +112,7 @@ app.get('/lista', async (req, res) => {
         res.json(estudantes);
     }
     else {
-        res.render('lista', {estudantes});
+        res.render('lista', { estudantes });
     }
 });
 
@@ -93,5 +126,5 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })

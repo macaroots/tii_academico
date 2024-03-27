@@ -21,6 +21,7 @@
     "nodemon": "^3.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "sequelize": "^6.37.1"
+    "sequelize": "^6.37.1",
+    "web-push": "^3.6.7"
   }
 }
