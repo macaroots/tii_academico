@@ -12,16 +12,17 @@ class EstudantesController {
         rotas.get('/', (req, res) => {
             this.listar(req, res)
         });
-
         rotas.put('/:id', (req, res) => {
             this.alterar(req, res);
         })
         rotas.delete('/:id', (req, res) => {
             this.apagar(req, res);
         })
-
         rotas.post('/', (req, res, next) => {
             this.inserir(req, res, next);
+        })
+        rotas.get('/:id', (req, res) => {
+            this.procurarPorId(req, res);
         })
         return rotas;
     }
@@ -80,6 +81,19 @@ class EstudantesController {
         /**/
         res.json(dados);
     }
+
+    async procurarPorId(req, res) {
+        let id = req.params.id;
+        let estudante = await this.estudantesDao.procurarPorId(id);
+        // let dados = estudantes.map(estudante => {
+        //     return {
+        //         ...estudante,
+        //         media: estudante.media(),
+        //         estaAprovado: estudante.estaAprovado()
+        //     };
+        // })
+        res.json(estudante);
+    }
     
     async inserir(req, res, next) {
         console.log("inserir0")
@@ -90,8 +104,8 @@ class EstudantesController {
             res.json({
                 estudante: {
                     ...estudante,
-                    media: estudante.media(),
-                    estaAprovado: estudante.estaAprovado()
+                    // media: estudante.media(),
+                    // estaAprovado: estudante.estaAprovado()
                 },
                 mensagem: 'mensagem_estudante_cadastrado'
             });
@@ -131,13 +145,21 @@ class EstudantesController {
 
     async getEstudanteDaRequisicao(req) {
         let corpo = req.body;
-        let estudante = Estudante.build({
+
+        let estudante = {
             nome: corpo.nome,
             nota1: parseFloat(corpo.nota1),
             nota2: parseFloat(corpo.nota2),
             senha: corpo.senha,
             papel: corpo.id_papel
-        });
+        };
+        // let estudante = Estudante.build({
+        //     nome: corpo.nome,
+        //     nota1: parseFloat(corpo.nota1),
+        //     nota2: parseFloat(corpo.nota2),
+        //     senha: corpo.senha,
+        //     papel: corpo.id_papel
+        // });
         return estudante;
     }
 

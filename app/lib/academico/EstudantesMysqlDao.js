@@ -21,6 +21,22 @@ class EstudantesMysqlDao {
         });
     }
 
+    procurarPorId(id) {
+        return new Promise((resolve, reject) => {
+            this.pool.query('SELECT e.id, e.nome, e.nota1, e.nota2, p.nome as papel FROM estudantes e JOIN papeis p ON e.id_papel = p.id WHERE e.id = ?', [id], function (error, linhas, fields) {
+                if (error) {
+                    return reject('Erro: ' + error.message);
+                }
+                let estudantes = linhas.map(linha => {
+                    console.log('linha', linha);
+                    let { id, nome, nota1, nota2, senha, papel } = linha;
+                    return new Estudante(nome, nota1, nota2, senha, papel, id);
+                })
+                resolve(estudantes[0]);
+            });
+        });
+    }
+
     inserir(estudante) {
         this.validar(estudante);
         estudante.senha = bcrypt.hashSync(estudante.senha, 10);

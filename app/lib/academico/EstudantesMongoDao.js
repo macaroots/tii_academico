@@ -1,5 +1,6 @@
 const Estudante = require("./Estudante")
 const bcrypt = require('bcrypt')
+var ObjectId = require('mongodb').ObjectId;
 
 class EstudantesMongoDao {
     constructor(client) {
@@ -15,22 +16,24 @@ class EstudantesMongoDao {
         const estudantes = await collection.find();
         return await estudantes.toArray()
     }
+    async procurarPorId(id) {
+        await this.client.connect();
+        const database = this.client.db(this.banco);
+        const collection = database.collection(this.colecao);
+    
+        const estudante = await collection.findOne({_id: new ObjectId(id)});
+        return estudante;   
+    }
 
-    inserir(estudante) {
+    async inserir(estudante) {
         this.validar(estudante);
         estudante.senha = bcrypt.hashSync(estudante.senha, 10);
         
-        return new Promise((resolve, reject) => {
-            let sql = `INSERT INTO estudantes (nome, nota1, nota2, senha, id_papel) VALUES (?, ?, ?, ?, ?);
-            `;
-            console.log({sql}, estudante);
-            this.pool.query(sql, [estudante.nome, estudante.nota1, estudante.nota2, estudante.senha, estudante.id_papel], function (error, resultado, fields) {
-                if (error) {
-                    return reject('Erro: ' + error.message);
-                }
-                return resolve(resultado.insertId);
-            });
-        });
+        await this.client.connect();
+        const database = this.client.db(this.banco);
+        const collection = database.collection(this.colecao);
+    
+        return await collection.insertOne(estudante);
     }
 
     alterar(id, estudante) {
@@ -38,16 +41,13 @@ class EstudantesMongoDao {
         this.estudantes[id] = estudante;
     }
 
-    apagar(id) {
-        return new Promise((resolve, reject) => {
-            let sql = `DELETE FROM estudantes WHERE id=?;`;
-            this.pool.query(sql, [id], function (error, resultado, fields) {
-                if (error) {
-                    return reject('Erro: ' + error.message);
-                }
-                return resolve(id);
-            });
-        });
+    async apagar(id) {
+        await this.client.connect();
+        const database = this.client.db(this.banco);
+        const collection = database.collection(this.colecao);
+    
+        const estudante = await collection.deleteOne({_id: new ObjectId(id)});
+        return estudante; 
     }
 
     validar(estudante) {
@@ -63,23 +63,18 @@ class EstudantesMongoDao {
         }
     }
 
-    autenticar(nome, senha) {
-        return new Promise((resolve, reject) => {
-            let sql = `SELECT e.*, p.nome as papel FROM estudantes e JOIN papeis p ON e.id_papel = p.id WHERE e.nome=?`;
-            this.pool.query(sql, [nome, senha], function (error, linhas, fields) {
-                if (error) {
-                    return reject('Erro: ' + error.message);
-                }
-                for (let linha of linhas) {
-                    console.log('autenticar', senha, linha);
-                    if (bcrypt.compareSync(senha, linha.senha)) {
-                        let { id, nome, nota1, nota2, senha, papel } = linha;
-                        return resolve(new Estudante(nome, nota1, nota2, senha, papel, id));
-                    }
-                }
-                return resolve(null);
-            });
-        });
+    async autenticar(nome, senha) {
+
+        await this.client.connect();
+        const database = this.client.db(this.banco);
+        const collection = database.collection(this.colecao);
+    
+        const estudante = await collection.findOne({nome});
+        if (bcrypt.compareSync(senha, estudante.senha)) {
+            let { id, nome, nota1, nota2, senha, papel } = estudante;
+            return new Estudante(nome, nota1, nota2, senha, papel, id);
+        }
+        return null; 
     }
 }
 

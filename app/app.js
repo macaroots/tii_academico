@@ -6,16 +6,26 @@ const EstudantesController = require('./controllers/EstudantesController');
 const EstaticoController = require('./controllers/EstaticoController');
 const AutorController = require('./controllers/AutorController');
 const AuthController = require('./controllers/AuthController');
+const EstudantesMysqlDao = require('./lib/academico/EstudantesMysqlDao');
 const EstudantesMongoDao = require('./lib/academico/EstudantesMongoDao');
 const EstudantesDao = require('./lib/academico/EstudantesDao');
-const Sequelize = require("sequelize");
+// const Sequelize = require("sequelize");
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
 const { MongoClient } = require("mongodb");
+// const mysql = require('mysql2');
 
 const uri = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@mongo`;
 const mongoClient = new MongoClient(uri);
+
+// const pool  = mysql.createPool({
+//     connectionLimit : 10,
+//     host            : 'bd',
+//     user            : process.env.MARIADB_USER,
+//     password        : process.env.MARIADB_PASSWORD,
+//     database        : process.env.MARIADB_DATABASE
+// });
 
 let opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -27,6 +37,7 @@ passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
 
 app.set('view engine', 'ejs');
 
+// let estudantesDao = new EstudantesMysqlDao(pool);
 let estudantesDao = new EstudantesMongoDao(mongoClient);
 let estudantesController = new EstudantesController(estudantesDao);
 let estaticoController = new EstaticoController();
@@ -37,32 +48,15 @@ app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }));
 //app.use(express.json());
 
-app.use((req, res, next) => {
-    res.locals.dadosPersonalizados = { chave: 'valor' };
-    console.log('middleware 0')
-    next();
-});
 app.use('/estudantes', estudantesController.getRouter());
 
-app.use((req, res, next) => {
-    res.locals.dadosPersonalizados = { chave: 'valor' };
-    console.log('middleware 1')
-    next();
-});
 app.get([
     '/',
     '/index'
     ], (req, res) => {
-        console.log('custom', req.dadosPersonalizados); // { chave: 'valor' }
         estudantesController.index(req, res)
 });
   
-app.use((req, res, next) => {
-    res.locals.dadosPersonalizados = { chave: 'valor' };
-    console.log('middleware 2')
-    next();
-});
-
 app.get('/autor', (req, res) => {
     autorController.index(req, res);
 });
@@ -81,7 +75,12 @@ app.post('/logar', (req, res) => {
 
 app.get('/lista', async (req, res) => {
     let estudantes = await estudantesDao.listar();
-    res.render('lista', {estudantes});
+    if (req.headers.accept == 'application/json') {
+        res.json(estudantes);
+    }
+    else {
+        res.render('lista', {estudantes});
+    }
 });
 
 app.get('*', (req, res, next) => {

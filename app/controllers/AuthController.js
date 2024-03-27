@@ -16,7 +16,7 @@ class AuthController {
         if (usuario) {
             console.log({usuario});
             let token = jwt.sign({
-                ...usuario.toJSON()
+                ...usuario
             }, this.SEGREDO_JWT);
             res.json({
                 token,
